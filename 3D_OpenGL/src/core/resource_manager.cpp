@@ -9,6 +9,7 @@
 // Instantiate static variables
 std::map<std::string, Texture2D>    ResourceManager::Textures;
 std::map<std::string, Shader>       ResourceManager::Shaders;
+std::map<std::string, Material>     ResourceManager::Materials;
 
 
 Shader ResourceManager::LoadShader(const char* vShaderFile, const char* fShaderFile, const char* gShaderFile, std::string name)
@@ -104,4 +105,15 @@ Texture2D ResourceManager::loadTextureFromFile(const char* file, bool alpha)
     // and finally free image data
     SOIL_free_image_data(data);
     return texture;
+}
+
+Material ResourceManager::LoadMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, GLuint diffuseTex, GLuint specularTex, std::string name)
+{
+    Materials[name] = Material(ambient, diffuse, specular, diffuseTex, specularTex);
+    return Materials[name];
+}
+
+Material ResourceManager::GetMaterial(std::string name)
+{
+    return Materials[name];
 }

@@ -193,46 +193,53 @@ unsigned int compileShader(GLenum type, const char* source)
             printf("VERTEX");
         else if (type == GL_FRAGMENT_SHADER)
             printf("FRAGMENT");
+        else if (type == GL_GEOMETRY_SHADER)
+            printf("GEOMETRY");
         printf(" sejder ima gresku! Greska: \n");
         printf(infoLog);
     }
     return shader;
 }
-unsigned int createShader(const char* vsSource, const char* fsSource)
-{
-    //Pravi objedinjeni sejder program koji se sastoji od Vertex sejdera ciji je kod na putanji vsSource
 
-    unsigned int program; //Objedinjeni sejder
-    unsigned int vertexShader; //Verteks sejder (za prostorne podatke)
-    unsigned int fragmentShader; //Fragment sejder (za boje, teksture itd)
 
-    program = glCreateProgram(); //Napravi prazan objedinjeni sejder program
-
-    vertexShader = compileShader(GL_VERTEX_SHADER, vsSource); //Napravi i kompajliraj vertex sejder
-    fragmentShader = compileShader(GL_FRAGMENT_SHADER, fsSource); //Napravi i kompajliraj fragment sejder
-
-    //Zakaci verteks i fragment sejdere za objedinjeni program
-    glAttachShader(program, vertexShader);
-    glAttachShader(program, fragmentShader);
-
-    glLinkProgram(program); //Povezi ih u jedan objedinjeni sejder program
-    glValidateProgram(program); //Izvrsi provjeru novopecenog programa
-
-    int success;
-    char infoLog[512];
-    glGetProgramiv(program, GL_VALIDATE_STATUS, &success); //Slicno kao za sejdere
-    if (success == GL_FALSE)
-    {
-        glGetShaderInfoLog(program, 512, NULL, infoLog);
-        std::cout << "Objedinjeni sejder ima gresku! Greska: \n";
-        std::cout << infoLog << std::endl;
-    }
-
-    //Posto su kodovi sejdera u objedinjenom sejderu, oni pojedinacni programi nam ne trebaju, pa ih brisemo zarad ustede na memoriji
-    glDetachShader(program, vertexShader);
-    glDeleteShader(vertexShader);
-    glDetachShader(program, fragmentShader);
-    glDeleteShader(fragmentShader);
-
-    return program;
-}
+// NE KORISTI SE ?
+// 
+// 
+//unsigned int createShader(const char* vsSource, const char* fsSource)
+//{
+//    //Pravi objedinjeni sejder program koji se sastoji od Vertex sejdera ciji je kod na putanji vsSource
+//
+//    unsigned int program; //Objedinjeni sejder
+//    unsigned int vertexShader; //Verteks sejder (za prostorne podatke)
+//    unsigned int fragmentShader; //Fragment sejder (za boje, teksture itd)
+//
+//    program = glCreateProgram(); //Napravi prazan objedinjeni sejder program
+//
+//    vertexShader = compileShader(GL_VERTEX_SHADER, vsSource); //Napravi i kompajliraj vertex sejder
+//    fragmentShader = compileShader(GL_FRAGMENT_SHADER, fsSource); //Napravi i kompajliraj fragment sejder
+//
+//    //Zakaci verteks i fragment sejdere za objedinjeni program
+//    glAttachShader(program, vertexShader);
+//    glAttachShader(program, fragmentShader);
+//
+//    glLinkProgram(program); //Povezi ih u jedan objedinjeni sejder program
+//    glValidateProgram(program); //Izvrsi provjeru novopecenog programa
+//
+//    int success;
+//    char infoLog[512];
+//    glGetProgramiv(program, GL_VALIDATE_STATUS, &success); //Slicno kao za sejdere
+//    if (success == GL_FALSE)
+//    {
+//        glGetShaderInfoLog(program, 512, NULL, infoLog);
+//        std::cout << "Objedinjeni sejder ima gresku! Greska: \n";
+//        std::cout << infoLog << std::endl;
+//    }
+//
+//    //Posto su kodovi sejdera u objedinjenom sejderu, oni pojedinacni programi nam ne trebaju, pa ih brisemo zarad ustede na memoriji
+//    glDetachShader(program, vertexShader);
+//    glDeleteShader(vertexShader);
+//    glDetachShader(program, fragmentShader);
+//    glDeleteShader(fragmentShader);
+//
+//    return program;
+//}

@@ -15,8 +15,7 @@ class GameObject
 {
 public:
     // object state
-    glm::vec2   Position, Size, Velocity;
-    glm::vec3   Color, Rotation;
+    glm::vec3   Color, Rotation, Position, Size, Velocity;
     float       Alpha;
     bool        IsSolid;
     bool        Destroyed;
@@ -24,8 +23,8 @@ public:
     Texture2D   Sprite;
     // constructor(s)
     GameObject();
-    GameObject(glm::vec2 pos, glm::vec2 size, Texture2D sprite, float alpha = 1.0f
-        ,glm::vec3 color = glm::vec3(1.0f), glm::vec2 velocity = glm::vec2(0.0f, 0.0f));
+    GameObject(glm::vec3 pos, glm::vec3 size, Texture2D sprite, float alpha = 1.0f
+        ,glm::vec3 color = glm::vec3(1.0f), glm::vec3 velocity = glm::vec3(0.0f));
     // draw sprite
     virtual void Draw(SpriteRenderer& renderer);
     bool IsClicked(float mouseX, float mouseY) const;

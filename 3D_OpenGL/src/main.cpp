@@ -1,18 +1,33 @@
 #include <iostream>
 
+// SPRITE RENDERER NO LONGER USED
+// TODO REMOVE IT
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <SOIL2/SOIL2.h>
 
 #include "core/game.h"
+#include "core/libs.h"
 
 unsigned int SCREEN_WIDTH = 800;
 unsigned int SCREEN_HEIGHT = 600;
+int fbWidth = 0;
+int fbHeight = 0;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void updateInput(GLFWwindow* window);
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 Game Project(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+GLFWwindow* createWindow(
+	const char* title,
+	const int width, const int height,
+	int& fbWidth, int& fbHeight,
+	int GLmajorVer, int GLminorVer,
+	bool resizable
+);
 
 int main() {
 	if (!glfwInit())
@@ -21,19 +36,12 @@ int main() {
 		return 1;
 	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
-
-	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "3D OpenGL", NULL, NULL);
-	if (window == NULL) {
-		std::cout << "Could not create window :(" << std::endl;
-		glfwTerminate();
+	GLFWwindow* window = createWindow("3D projekat", SCREEN_WIDTH, SCREEN_HEIGHT,
+		fbWidth, fbHeight, 3, 3, false);
+	if (window == NULL)
+	{
 		return -1;
 	}
-	glfwMakeContextCurrent(window);
 
 	if (glewInit() != GLEW_OK)
 	{
@@ -55,9 +63,6 @@ int main() {
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	Project.Init();
 
@@ -82,7 +87,7 @@ int main() {
 		Project.ProcessInput(deltaTime);
 
 		//UPDATE ---
-
+		Project.Update(deltaTime);
 		//DRAW ---
 
 		//CLEAR
@@ -112,4 +117,47 @@ void updateInput(GLFWwindow* window)
 	{
 		glfwSetWindowShouldClose(window, true);
 	}
+}
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	// when a user presses the escape key, we set the WindowShouldClose property to true, closing the application
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+	if (key >= 0 && key < 1024)
+	{
+		if (action == GLFW_PRESS)
+			Project.Keys[key] = true;
+		else if (action == GLFW_RELEASE)
+			Project.Keys[key] = false;
+	}
+}
+
+GLFWwindow* createWindow(
+	const char* title, 
+	const int width, const int height,
+	int& fbWidth, int& fbHeight,
+	int GLmajorVer, int GLminorVer,
+	bool resizable
+)
+{
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, GLmajorVer);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, GLminorVer);
+
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	glfwWindowHint(GLFW_RESIZABLE, resizable);
+
+	GLFWwindow* window = glfwCreateWindow(width, height, "3D OpenGL", NULL, NULL);
+
+	glfwGetFramebufferSize(window, &fbWidth, &fbHeight);
+	glViewport(0, 0, width, height);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetKeyCallback(window, key_callback);
+
+	if (window == NULL) {
+		std::cout << "Could not create window :(" << std::endl;
+		glfwTerminate();
+		return NULL;
+	}
+	glfwMakeContextCurrent(window);
+	return window;
 }

@@ -1,9 +1,12 @@
-#include "game.h"
+﻿#include "game.h"
 
 #include "resource_manager.h"
 #include "../graphics/sprite_renderer.h"
+#include "../entities/mesh.h"
+#include "primitives.h"
 
 SpriteRenderer* Renderer;
+Mesh* test = nullptr;
 
 float pom = 0.f;
 
@@ -20,6 +23,7 @@ Game::~Game()
 
 void Game::Init()
 {
+
     // load shaders
     ResourceManager::LoadShader("shaders/sprite.vert", "shaders/sprite.frag", nullptr, "sprite");
     // configure shaders
@@ -46,29 +50,64 @@ void Game::Init()
     ResourceManager::GetShader("sprite").Use().SetInteger("image", 0);
     ResourceManager::GetShader("sprite").SetMatrix4("projection", projection);
     ResourceManager::GetShader("sprite").SetMatrix4("view", view);
+
+    glm::vec3 lightPos0(0.f, 0.f, 2.f);
+
+    ResourceManager::GetShader("sprite").SetVector3f("lightPos0", lightPos0);
+    ResourceManager::GetShader("sprite").SetVector3f("camPosition", camPosition);
+
     // set render-specific controls
     Shader basicShader = ResourceManager::GetShader("sprite");
     Renderer = new SpriteRenderer(basicShader);
     // load textures
     ResourceManager::LoadTexture("textures/awesomeface.png", true, "face");
+
+    Texture2D face = ResourceManager::GetTexture("face");
+    ResourceManager::LoadMaterial(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f), face.ID, face.ID, "material0");
+
+    // TEST MESH
+    Quad quad = Quad();
+    test = new Mesh(&quad, glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f));
 }
 
 void Game::Update(float dt)
 {
+    ResourceManager::GetTexture("face").Bind();
 
+    Shader basicShader = ResourceManager::GetShader("sprite");
+    ResourceManager::GetMaterial("material0").SendToShader(basicShader);
 }
 
 void Game::ProcessInput(float dt)
 {
-
+    if (this->Keys[GLFW_KEY_A]) {
+        test->Move(glm::vec3(-1.f *dt , 0.0f, 0.0f));
+    }
+    if (this->Keys[GLFW_KEY_D]) {
+        test->Move(glm::vec3(1.f * dt, 0.0f, 0.0f));
+    }
+    if (this->Keys[GLFW_KEY_Q]) {
+        test->Rotate(glm::vec3(0.f, -100.0f * dt, 0.0f));
+    }
+    if (this->Keys[GLFW_KEY_E]) {
+        test->Rotate(glm::vec3(0.f, 100.0f * dt, 0.0f));
+    }
+    if (this->Keys[GLFW_KEY_Z]) {
+        test->ScaleChange(glm::vec3(-1.f * dt));
+    }
+    if (this->Keys[GLFW_KEY_X]) {
+        test->ScaleChange(glm::vec3(1.f * dt));
+    }
 }
 
 void Game::Render()
 {
     Texture2D face = ResourceManager::GetTexture("face");
-    pom += 2.f;
+    pom += 0.02f;
     if (pom >= 360) {
         pom = 0.f;
     }
-    Renderer->DrawSprite(face, glm::vec2(200.0f, 200.0f), glm::vec2(300.0f, 400.0f), glm::vec3(0.f, -pom, 0.f), glm::vec3(0.0f, 1.0f, 0.0f));
+    //Renderer->DrawSprite(face, glm::vec3(.0f, 0.f, .0f), glm::vec3(1.0f), glm::vec3(-pom, 0.f, 0.f), glm::vec3(1.0f, 1.0f, 1.0f));
+    Shader basicShader = ResourceManager::GetShader("sprite");
+    test->Render(&basicShader);
 }
