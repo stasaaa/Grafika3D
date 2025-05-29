@@ -33,6 +33,7 @@ private:
 	void UpdateModelMatrix();
 
 public:
+	Mesh() {}
 	Mesh(Primitive* primitive, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 	Mesh(Vertex* vertexArray, const unsigned& nrOfVerices, 
 		 GLuint* indexArray, const unsigned& nrOfIndices,

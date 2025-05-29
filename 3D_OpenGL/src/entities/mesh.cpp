@@ -114,10 +114,10 @@ void Mesh::Update()
 
 void Mesh::Render(Shader* shader)
 {
+    shader->Use();
+
     this->UpdateModelMatrix();
     this->UpdateUniforms(shader);
-
-    shader->Use();
 
     glBindVertexArray(this->VAO);
     glDrawElements(GL_TRIANGLES, this->nrOfIndices, GL_UNSIGNED_INT, 0);

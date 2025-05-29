@@ -1,8 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include "libs.h"
 
 // Represents the current state of the game
 enum GameState {
@@ -17,13 +16,48 @@ enum GameState {
 class Game
 {
 public:
+    GLFWwindow* window;
+    int fbWidth;
+    int fbHeight;
+    //OpenGL context
+    const int GL_VER_MAJOR;
+    const int GL_VER_MINOR;
+
+    //Matrices
+    glm::mat4 ViewMatrix;
+    glm::vec3 camPosition;
+    glm::vec3 worldUp;
+    glm::vec3 camFront;
+
+    glm::mat4 ProjectionMatrix;
+    float fov;
+    float nearPlane;
+    float farPlane;
+
     // game state
     GameState               State;
     bool                    Keys[1024];
     unsigned int            Width, Height;
     // constructor/destructor
-    Game(unsigned int width, unsigned int height);
-    ~Game();
+    Game(const char* title,
+        const int width, const int height,
+        int GLVerMajor, int GLVerMinor,
+        bool resizable);
+    virtual ~Game();
+    // sa tutorijala
+    void InitGLFW();
+    void InitWindow(const char* title, bool resizable);
+    void InitGLEW(); // after vontext creation!!!
+    void InitOpenGLOptions();
+
+    void InitShaders();
+    void InitTextures();
+    void InitMaterials();
+    void InitMeshes();
+    void InitLights();
+
+    void InitMatrices();
+
     // initialize game state (load all shaders/textures/levels)
     void Init();
     // game loop
