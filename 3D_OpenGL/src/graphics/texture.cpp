@@ -34,3 +34,9 @@ void Texture2D::Bind() const
     glActiveTexture(GL_TEXTURE0 + this->ID);
     glBindTexture(GL_TEXTURE_2D, this->ID);
 }
+
+void Texture2D::Bind(unsigned int unit) const
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_2D, unit);
+}

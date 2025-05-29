@@ -113,8 +113,7 @@ void Game::InitMatrices()
         static_cast<float>(this->Width) / (this->Height),
         this->nearPlane, this->farPlane);
 
-    ResourceManager::GetShader("sprite")->Use().SetInteger("image", 0);
-    ResourceManager::GetShader("sprite")->SetMatrix4("projection", this->ProjectionMatrix);
+    ResourceManager::GetShader("sprite")->SetMatrix4("projection", this->ProjectionMatrix, true);
     ResourceManager::GetShader("sprite")->SetMatrix4("view", this->ViewMatrix);
     ResourceManager::GetShader("sprite")->SetVector3f("camPosition", this->camPosition);
 }
@@ -149,11 +148,24 @@ void Game::Init()
 {
 }
 
-void Game::Update(float dt)
+void Game::UpdateUniforms()
 {
     ResourceManager::GetTexture("face")->Bind();
 
     ResourceManager::GetMaterial("material0")->SendToShader(*ResourceManager::GetShader("sprite"));
+
+    glfwGetFramebufferSize(this->window, &this->fbWidth, &this->fbHeight);
+    this->ProjectionMatrix = glm::perspective(glm::radians(this->fov),
+        static_cast<float>(this->Width) / (this->Height),
+        this->nearPlane, this->farPlane);
+    ResourceManager::GetShader("sprite")->SetMatrix4("projection", this->ProjectionMatrix);
+}
+
+void Game::Update(float dt)
+{
+
+
+    this->UpdateUniforms();
 }
 
 void Game::ProcessInput(float dt)

@@ -15,6 +15,8 @@ enum GameState {
 // easy access to each of the components and manageability.
 class Game
 {
+private:
+    void UpdateUniforms();
 public:
     GLFWwindow* window;
     int fbWidth;
