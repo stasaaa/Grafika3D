@@ -11,6 +11,7 @@ std::map<std::string, Texture2D*>    ResourceManager::Textures;
 std::map<std::string, Shader*>       ResourceManager::Shaders;
 std::map<std::string, Material*>     ResourceManager::Materials;
 std::map<std::string, Mesh*>         ResourceManager::Meshes;
+std::map<std::string, PointLight*>   ResourceManager::PointLights;
 std::map<std::string, glm::vec3*>    ResourceManager::Lights;
 
 
@@ -121,6 +122,14 @@ Material* ResourceManager::LoadMaterial(glm::vec3 ambient, glm::vec3 diffuse, gl
 Material* ResourceManager::GetMaterial(std::string name)
 {
     return Materials[name];
+}
+
+Mesh* ResourceManager::LoadMesh(Vertex* vertexArray, const unsigned& nrOfVertices,
+    GLuint* indexArray, const unsigned& nrOfIndices,
+    glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, std::string name) {
+    Meshes[name] = new Mesh(vertexArray, nrOfVertices, indexArray, nrOfIndices, 
+        position, rotation, scale);
+    return Meshes[name];
 }
 
 Mesh* ResourceManager::LoadMesh(Primitive* primitive, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale, std::string name)

@@ -1,5 +1,5 @@
-#include "shader.h"
-#include "../entities/characters.h"
+#include "../graphics/shader.h"
+#include "characters.h"
 #include <string>
 #ifndef TEXT_RENDERER_H
 #define TEXT_RENDERER_H

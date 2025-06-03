@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "libs.h"
+#include "OBJLoader.h"
 
 // Represents the current state of the game
 enum GameState {
@@ -17,6 +18,7 @@ class Game
 {
 private:
     void UpdateUniforms();
+    void UpdateModelPosition(Model* model, glm::vec3 position);
 public:
     GLFWwindow* window;
     int fbWidth;
@@ -36,9 +38,28 @@ public:
     float nearPlane;
     float farPlane;
 
+    // Delta time
+    float dt;
+    float curTime;
+    float lastTime;
+
+    // Mouse Input
+    double lastMouseX;
+    double lastMouseY;
+    double mouseX;
+    double mouseY;
+    double mouseOffsetX;
+    double mouseOffsetY;
+    bool firstMouse;
+
+    Camera camera;
+    Terrain* terrain;
+
+    std::vector<Model*> Models;
+
     // game state
     GameState               State;
-    bool                    Keys[1024];
+    bool                    Keys[1024], MouseButtons[8];
     unsigned int            Width, Height;
     // constructor/destructor
     Game(const char* title,
@@ -47,24 +68,27 @@ public:
         bool resizable);
     virtual ~Game();
     // sa tutorijala
+    void InitOBJModels();
     void InitGLFW();
     void InitWindow(const char* title, bool resizable);
     void InitGLEW(); // after vontext creation!!!
     void InitOpenGLOptions();
 
+    void InitMatrices();
     void InitShaders();
     void InitTextures();
     void InitMaterials();
     void InitMeshes();
+    void InitModels();
     void InitLights();
-
-    void InitMatrices();
 
     // initialize game state (load all shaders/textures/levels)
     void Init();
     // game loop
-    void ProcessInput(float dt);
-    void Update(float dt);
+    void ProcessInput();
+    void UpdateMouseEvents();
+    void UpdateDT();
+    void Update();
     void Render();
 };
 

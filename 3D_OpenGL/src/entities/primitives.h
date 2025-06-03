@@ -42,4 +42,10 @@ public:
 	Triangle();
 };
 
+class Pyramid : public Primitive
+{
+public:
+	Pyramid();
+};
+
 #endif // !PRIMITIVES_H

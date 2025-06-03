@@ -133,18 +133,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\camera.cpp" />
     <ClCompile Include="src\core\game.cpp" />
-    <ClCompile Include="src\core\primitives.cpp" />
+    <ClCompile Include="src\core\OBJLoader.cpp" />
+    <ClCompile Include="src\entities\primitives.cpp" />
     <ClCompile Include="src\core\resource_manager.cpp" />
-    <ClCompile Include="src\entities\characters.cpp" />
-    <ClCompile Include="src\entities\game_object.cpp" />
+    <ClCompile Include="src\terrain\terrain.cpp" />
+    <ClCompile Include="src\text\characters.cpp" />
+    <ClCompile Include="src\core\light.cpp" />
     <ClCompile Include="src\entities\mesh.cpp" />
-    <ClCompile Include="src\entities\text.cpp" />
+    <ClCompile Include="src\entities\model.cpp" />
+    <ClCompile Include="src\text\text.cpp" />
     <ClCompile Include="src\graphics\material.cpp" />
     <ClCompile Include="src\graphics\shader.cpp" />
-    <ClCompile Include="src\graphics\sprite_renderer.cpp" />
     <ClCompile Include="src\graphics\texture.cpp" />
-    <ClCompile Include="src\graphics\text_renderer.cpp" />
+    <ClCompile Include="src\text\text_renderer.cpp" />
     <ClCompile Include="src\graphics\vertex.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
@@ -152,22 +155,27 @@
     <None Include="packages.config" />
     <None Include="shaders\sprite.frag" />
     <None Include="shaders\sprite.vert" />
+    <None Include="shaders\terrain.frag" />
+    <None Include="shaders\terrain.vert" />
     <None Include="src\freetype.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\core\camera.h" />
     <ClInclude Include="src\core\game.h" />
-    <ClInclude Include="src\core\primitives.h" />
+    <ClInclude Include="src\core\OBJLoader.h" />
+    <ClInclude Include="src\entities\primitives.h" />
     <ClInclude Include="src\core\resource_manager.h" />
-    <ClInclude Include="src\entities\characters.h" />
-    <ClInclude Include="src\entities\game_object.h" />
+    <ClInclude Include="src\terrain\terrain.h" />
+    <ClInclude Include="src\text\characters.h" />
+    <ClInclude Include="src\core\light.h" />
     <ClInclude Include="src\entities\mesh.h" />
-    <ClInclude Include="src\entities\text.h" />
+    <ClInclude Include="src\entities\model.h" />
+    <ClInclude Include="src\text\text.h" />
     <ClInclude Include="src\core\libs.h" />
     <ClInclude Include="src\graphics\material.h" />
     <ClInclude Include="src\graphics\shader.h" />
-    <ClInclude Include="src\graphics\sprite_renderer.h" />
     <ClInclude Include="src\graphics\texture.h" />
-    <ClInclude Include="src\graphics\text_renderer.h" />
+    <ClInclude Include="src\text\text_renderer.h" />
     <ClInclude Include="src\graphics\vertex.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

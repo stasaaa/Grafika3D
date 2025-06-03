@@ -8,12 +8,14 @@
 #include "../graphics/texture.h"
 #include "../graphics/material.h"
 #include "../graphics/vertex.h"
-#include "../core/primitives.h"
+#include "primitives.h"
 
 class Mesh
 {
 private:
+	Vertex* vertexArray;
 	unsigned nrOfVertices;
+	GLuint* indexArray;
 	unsigned nrOfIndices;
 
 	GLuint VAO;
@@ -26,14 +28,13 @@ private:
 
 	glm::mat4 ModelMatrix;
 
-	void InitVAO(Vertex* vertexArray, const unsigned& nrOfVerices,
-				 GLuint* indexArray, const unsigned& nrOfIndices);
-	void InitVAO(Primitive* primitive);
+	void InitVAO();
 	void UpdateUniforms(Shader* shader);
-	void UpdateModelMatrix();
+	void UpdateModelMatrix(glm::vec3 origin);
 
 public:
 	Mesh() {}
+	Mesh(const Mesh& obj);
 	Mesh(Primitive* primitive, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 	Mesh(Vertex* vertexArray, const unsigned& nrOfVerices, 
 		 GLuint* indexArray, const unsigned& nrOfIndices,
@@ -42,10 +43,12 @@ public:
 		 glm::vec3 scale = glm::vec3(1.f));
 	~Mesh();
 	void Update();
-	void Render(Shader* shader);
+	void Render(Shader* shader, const glm::vec3& origin);
 	void Move(const glm::vec3 position);
 	void Rotate(const glm::vec3 rotation);
 	void ScaleChange(const glm::vec3 scale);
+	Vertex* GetVertices() const;
+	unsigned GetVertexCount() const;
 };
 
 #endif // !MESH_H

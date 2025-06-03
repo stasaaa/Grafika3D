@@ -12,6 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "shader.h"
+#include "texture.h"
 
 class Material 
 {
@@ -24,6 +25,8 @@ private:
 
 public:
     Material() {}
+    //Material(glm::vec3 ambient, glm::vec3 diffuse, 
+    //    glm::vec3 specular, Texture2D* texture);
     Material(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular,
         GLuint diffuseTex, GLuint specularTex);
     ~Material() {}

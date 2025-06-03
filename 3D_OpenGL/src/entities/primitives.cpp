@@ -73,3 +73,42 @@ Triangle::Triangle() : Primitive()
 
 	this->Set(vertices, nrOfVertices, indices, nrOfIndices);
 }
+
+Pyramid::Pyramid() : Primitive()
+{
+	Vertex vertices[] = {
+		// Position					// Color			//Texture		// Normal
+
+		// Triangle front
+		{{0.f, 0.5f, 0.f},			{1.f, 1.f, 1.f},	{0.5, 1.f},		{0.f, 0.f, 1.f}},
+		{{-0.5f, -0.5f, 0.5f},		{1.f, 1.f, 1.f},	{0.f, 0.f},		{0.f, 0.f, 1.f}},
+		{{0.5f, -0.5f, 0.5f},		{1.f, 1.f, 1.f},	{1.f, 0.f},		{0.f, 0.f, 1.f}},
+
+		// Triangle left
+		{{0.0f, 0.5f, 0.f},			{1.f, 1.f, 1.f},	{0.5f, 1.f},	{-1.f, 0.f, 0.f}},
+		{{-0.5f, -0.5f, -0.5f},		{1.f, 1.f, 1.f},	{0.f, 0.f},		{-1.f, 0.f, 0.f}},
+		{{-0.5f, -0.5f, 0.5f},		{1.f, 1.f, 1.f},	{1.f, 0.f},		{-1.f, 0.f, 0.f}},
+
+		// Triangle back
+		{{0.0f, 0.5f, 0.f},			{1.f, 1.f, 1.f},	{0.5f, 1.f},	{0.f, 0.f, -1.f}},
+		{{0.5f, -0.5f, -0.5f},		{1.f, 1.f, 1.f},	{0.f, 0.f},		{0.f, 0.f, -1.f}},
+		{{-0.5f, -0.5f, -0.5f},		{1.f, 1.f, 1.f},	{1.f, 0.f},		{0.f, 0.f, -1.f}},
+
+		// Triangle right
+		{{0.f, 0.5f, 0.f},			{1.f, 1.f, 1.f},	{0.5f, 1.f},	{1.f, 0.f, 0.f}},
+		{{0.5f, -0.5f, 0.5f},		{1.f, 1.f, 1.f},	{0.f, 0.f},		{1.f, 0.f, 0.f}},
+		{{0.5f, -0.5f, -0.5f},		{1.f, 1.f, 1.f},	{1.f, 0.f},		{1.f, 0.f, 0.f}}
+
+		//// Base
+		//{{0.5f, 0.0f, 0.5f},   {0, 0, 1}, {0, 0}, {0.707f, 0.5f, 0.707f}},
+		//{{-0.5f, 0.0f, 0.5f},  {1, 1, 0}, {1, 0}, {-0.707f, 0.5f, 0.707f}},
+		//{{0.0f, 1.0f, 0.0f},   {1, 0, 1}, {0.5f, 1}, {0, 0.5f, 1}},
+
+		//{{-0.5f, 0.0f, 0.5f},  {1, 1, 0}, {0, 0}, {-0.707f, 0.5f, 0.707f}},
+		//{{-0.5f, 0.0f, -0.5f}, {1, 0, 0}, {1, 0}, {-0.707f, 0.5f, -0.707f}},
+		//{{0.0f, 1.0f, 0.0f},   {0, 1, 1}, {0.5f, 1}, {-1, 0.5f, 0}}
+	};
+	unsigned nrOfVertices = sizeof(vertices) / sizeof(Vertex);
+
+	this->Set(vertices, nrOfVertices, nullptr, 0);
+}

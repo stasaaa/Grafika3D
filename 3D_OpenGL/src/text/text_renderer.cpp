@@ -1,5 +1,5 @@
 #include "text_renderer.h"
-#include "../entities/text.h"
+#include "text.h"
 #include <iostream>
 
 TextRenderer::TextRenderer()
