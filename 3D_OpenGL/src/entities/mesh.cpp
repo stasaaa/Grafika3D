@@ -193,7 +193,7 @@ void Mesh::Rotate(const glm::vec3 rotation)
 
 void Mesh::SetRotation(const glm::vec3 rotation)
 {
-    this->Rotation = rotation;
+    this->Rotation.y = rotation.y;
 }
 
 void Mesh::ScaleChange(const glm::vec3 scale)

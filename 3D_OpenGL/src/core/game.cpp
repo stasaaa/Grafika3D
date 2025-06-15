@@ -9,7 +9,10 @@ enum MODELS
     SUN,
     MOON,
     HOUSE,
-    STATUE
+    STATUE1,
+    STATUE2,
+    STATUE3,
+    STATUE4
 };
 
 std::vector<glm::vec3> rotations = { {glm::vec3(0.f)} ,
@@ -181,6 +184,7 @@ void Game::InitTextures()
     ResourceManager::LoadTexture("./textures/Rolling_Hills_Bitmap_1025.png", false, "terrain");
     ResourceManager::LoadTexture("textures/tiny_treats_texture_1.png", true, "house");
     ResourceManager::LoadTexture("textures/grunge-wall-texture.jpg", false, "stone");
+    ResourceManager::LoadTexture("textures/marble-tile-texture.jpg", false, "marble");
 }
 
 void Game::InitMaterials()
@@ -198,27 +202,72 @@ void Game::InitMeshes()
     Pyramid pyramid = Pyramid();
     Quad quad = Quad();
     Cube cube = Cube();
-    ResourceManager::LoadMesh(&pyramid, glm::vec3(0.f, -2.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "pyramid");
-    ResourceManager::GetMesh("pyramid")->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+    InvertedPyramid invertedPyramid = InvertedPyramid();
+    ResourceManager::LoadMesh(&pyramid, glm::vec3(0.f, 3.f, 0.f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(1.f), "pyramid");
     ResourceManager::LoadMesh(&quad, glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f), "quad");
     ResourceManager::LoadMesh(&cube, glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "cube");
-    ResourceManager::LoadMesh(&pyramid, glm::vec3(0.f, 3.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "pyramid2");
+    ResourceManager::LoadMesh(&invertedPyramid, glm::vec3(0.f, 2.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "invertedPyramid");
 }
 
 void Game::InitModels()
 {
     std::vector<Mesh*> meshes;
-
     meshes.push_back(ResourceManager::GetMesh("pyramid"));
     meshes.push_back(ResourceManager::GetMesh("cube"));
-    meshes.push_back(ResourceManager::GetMesh("pyramid2"));
+    meshes.push_back(ResourceManager::GetMesh("invertedPyramid"));
 
     this->Models.push_back(new Model(glm::vec3(0.f, 0.f, 0.f),
         ResourceManager::GetMaterial("material0"),
         ResourceManager::GetTexture("stone"),
         ResourceManager::GetTexture("stone"),
         meshes));
-    this->UpdateModelPosition(this->Models[4], glm::vec3(2.f, 0.f, 0.f));
+
+    meshes.clear();
+
+    ResourceManager::GetMesh("cube")->ScaleChange(glm::vec3(2.f, 1.f, 2.f));
+    ResourceManager::GetMesh("invertedPyramid")->ScaleChange(glm::vec3(2.f, 1.f, 2.f));
+
+    meshes.push_back(ResourceManager::GetMesh("cube"));
+    meshes.push_back(ResourceManager::GetMesh("pyramid"));
+
+    this->Models.push_back(new Model(glm::vec3(0.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("marble"),
+        ResourceManager::GetTexture("marble"),
+        meshes));
+
+    meshes.clear();
+
+    ResourceManager::GetMesh("cube")->ScaleChange(glm::vec3(-2.f, -1.f, -2.f));
+    ResourceManager::GetMesh("cube")->ScaleChange(glm::vec3(0.8f, 1.2f, 1.2f));
+    ResourceManager::GetMesh("pyramid")->ScaleChange(glm::vec3(0.8f, 1.2f, 1.2f));
+
+    meshes.push_back(ResourceManager::GetMesh("cube"));
+    meshes.push_back(ResourceManager::GetMesh("pyramid"));
+
+    this->Models.push_back(new Model(glm::vec3(0.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("stone"),
+        ResourceManager::GetTexture("stone"),
+        meshes));
+
+    meshes.clear();
+    
+    ResourceManager::GetMesh("pyramid")->Move(glm::vec3(0.f, -1.f, 0.f));
+    meshes.push_back(ResourceManager::GetMesh("pyramid"));
+    ResourceManager::GetMesh("cube")->ScaleChange(glm::vec3(-0.8f, -1.2f, -1.2f));
+    meshes.push_back(ResourceManager::GetMesh("cube"));
+
+    this->Models.push_back(new Model(glm::vec3(0.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("marble"),
+        ResourceManager::GetTexture("marble"),
+        meshes));
+
+    meshes.clear();
+
+    //this->UpdateModelPosition(this->Models[4], glm::vec3(2.f, 0.f, 0.f));
+
 
     for (auto& pair : ResourceManager::Meshes) {
         delete pair.second;  // Extracting Mesh* from map
@@ -405,21 +454,21 @@ void Game::Render()
     this->UpdateModelPosition(this->Models[HOUSE], glm::vec3(30.f, 0.f, 50.f));
     this->Models[HOUSE]->Render(ResourceManager::GetShader("sprite"));
 
-    this->Models[STATUE]->SetRotation(rotations[0]);
-    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(5.f, 0.f, 5.f));
-    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+    this->Models[STATUE1]->SetRotation(rotations[0]);
+    this->UpdateModelPosition(this->Models[STATUE1], glm::vec3(5.f, 0.f, 5.f));
+    this->Models[STATUE1]->Render(ResourceManager::GetShader("sprite"));
 
-    this->Models[STATUE]->SetRotation(rotations[1]);
-    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(-5.f, 0.f, 5.f));
-    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+    this->Models[STATUE2]->SetRotation(rotations[1]);
+    this->UpdateModelPosition(this->Models[STATUE2], glm::vec3(-5.f, 0.f, 5.f));
+    this->Models[STATUE2]->Render(ResourceManager::GetShader("sprite"));
 
-    this->Models[STATUE]->SetRotation(rotations[2]);
-    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(-5.f, 0.f, -5.f));
-    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+    this->Models[STATUE3]->SetRotation(rotations[2]);
+    this->UpdateModelPosition(this->Models[STATUE3], glm::vec3(-5.f, 0.f, -5.f));
+    this->Models[STATUE3]->Render(ResourceManager::GetShader("sprite"));
 
-    this->Models[STATUE]->SetRotation(rotations[3]);
-    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(5.f, 0.f, -5.f));
-    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+    this->Models[STATUE4]->SetRotation(rotations[3]);
+    this->UpdateModelPosition(this->Models[STATUE4], glm::vec3(5.f, 0.f, -5.f));
+    this->Models[STATUE4]->Render(ResourceManager::GetShader("sprite"));
 
     ResourceManager::GetShader("terrain")->Use();
     ResourceManager::GetTexture("terrain")->Bind();

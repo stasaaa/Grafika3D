@@ -48,6 +48,12 @@ public:
 	Pyramid();
 };
 
+class InvertedPyramid : public Primitive
+{
+public:
+	InvertedPyramid();
+};
+
 class Cube : public Primitive
 {
 public:
