@@ -30,18 +30,27 @@ void TextRenderer::RenderText(std::wstring text, float x, float y, float scale, 
         Character ch = this->CharactersDetails.AllCharacters[unicodeChar];
 
         float xpos = x + ch.Bearing.x * scale;
-        float ypos = y - ch.Bearing.y * scale;
+        float ypos = y * scale;
 
         float w = ch.Size.x* scale;
         float h = ch.Size.y * scale;
-        float vertices[6][4] = {
-            { xpos,     ypos + h,   0.0f, 1.0f },
-            { xpos,     ypos,       0.0f, 0.0f },
-            { xpos + w, ypos,       1.0f, 0.0f },
+        //float vertices[6][4] = {
+        //    { xpos,     ypos + h,   0.0f, 1.0f },
+        //    { xpos,     ypos,       0.0f, 0.0f },
+        //    { xpos + w, ypos,       1.0f, 0.0f },
 
-            { xpos,     ypos + h,   0.0f, 1.0f },
-            { xpos + w, ypos,       1.0f, 0.0f },
-            { xpos + w, ypos + h,   1.0f, 1.0f }
+        //    { xpos,     ypos + h,   0.0f, 1.0f },
+        //    { xpos + w, ypos,       1.0f, 0.0f },
+        //    { xpos + w, ypos + h,   1.0f, 1.0f }
+        //};
+        float vertices[6][4] = {
+            { xpos,     ypos + h,   0.0f, 0.0f },            
+            { xpos,     ypos,       0.0f, 1.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+
+            { xpos,     ypos + h,   0.0f, 0.0f },
+            { xpos + w, ypos,       1.0f, 1.0f },
+            { xpos + w, ypos + h,   1.0f, 0.0f }           
         };
 
         glBindTexture(GL_TEXTURE_2D, ch.TextureID);

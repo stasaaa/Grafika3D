@@ -3,6 +3,7 @@
 
 #include "libs.h"
 #include "OBJLoader.h"
+#include "../text/text_renderer.h"
 
 // Represents the current state of the game
 enum GameState {
@@ -84,7 +85,7 @@ public:
     void InitModels();
     void InitLights();
     void InitCameras();
-
+    void InitTextRenderer(Characters& textCharacters);
     // initialize game state (load all shaders/textures/levels)
     void Init();
     // game loop

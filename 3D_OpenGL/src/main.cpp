@@ -1,12 +1,21 @@
 #include <iostream>
+#include <chrono>
+#include <thread>
 
 // SPRITE RENDERER NO LONGER USED
 // TODO REMOVE IT
 
 //#define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H 
 
 #include "core/game.h"
+#include "text/text.h"
+#include "text/characters.h"
+
+const int TARGET_FPS = 60;
+const double TARGET_FRAME_TIME = 1.0 / TARGET_FPS;
 
 const int SCREEN_WIDTH = 1920;
 const int SCREEN_HEIGHT = 1080;
@@ -23,12 +32,85 @@ int main() {
 	glfwSetKeyCallback(Project.window, key_callback);
 	glfwSetMouseButtonCallback(Project.window, mouse_button_callback);
 
+
+    // freetype
+    Characters* TextCharacters = new Characters();
+
+    FT_Library ft;
+    if (FT_Init_FreeType(&ft))
+    {
+        std::cout << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+        return -1;
+    }
+
+    FT_Face face;
+    if (FT_New_Face(ft, "assets/fonts/Jersey_10/Jersey10-Regular.ttf", 0, &face))
+    {
+        std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
+        return -1;
+    }
+    else {
+        FT_Set_Pixel_Sizes(face, 0, 48);
+
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+        for (unsigned int c = 0; c < 2048; c++)
+        {
+            if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
+                std::cout << "ERROR::FREETYPE: Failed to load Glyph" << std::endl;
+                continue;
+            }
+
+            unsigned int texture;
+            glGenTextures(1, &texture);
+            glBindTexture(GL_TEXTURE_2D, texture);
+            glTexImage2D(
+                GL_TEXTURE_2D,
+                0,
+                GL_RED,
+                face->glyph->bitmap.width,
+                face->glyph->bitmap.rows,
+                0,
+                GL_RED,
+                GL_UNSIGNED_BYTE,
+                face->glyph->bitmap.buffer
+            );
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            Character character = {
+                texture,
+                glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+                glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+                static_cast<unsigned int>(face->glyph->advance.x)
+            };
+            TextCharacters->AllCharacters.insert(std::pair<unsigned int, Character>(c, character));
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
+    FT_Done_Face(face);
+    FT_Done_FreeType(ft);
+
+    Project.InitTextRenderer(*TextCharacters);
+
 	// deltaTime variables
 	// -------------------
-	//float deltaTime = 0.0f;
-	//float lastFrame = 0.0f;
+	float deltaTime = 0.0f;
+	float lastFrame = 0.0f;
 
 	while (!glfwWindowShouldClose(Project.window)) {
+		float currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+
+		if (deltaTime < TARGET_FRAME_TIME) {
+			//std::cout << "Delta time: " << deltaTime << "\tSleep for: " << static_cast<int>((TARGET_FRAME_TIME - deltaTime) * 1000) << std::endl;
+			std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>((TARGET_FRAME_TIME - deltaTime) * 1000)));
+		}
+
 		// calculate delta time
 		// --------------------
 		Project.UpdateDT();

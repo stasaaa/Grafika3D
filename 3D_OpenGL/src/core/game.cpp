@@ -1,5 +1,8 @@
 ﻿#include "game.h"
 
+TextRenderer* RenderText;
+std::wstring NameOutput(L"Staša Radojičić RA 62/2021");
+
 enum MODELS
 {
     TREE = 0,
@@ -133,7 +136,7 @@ void Game::InitOpenGLOptions()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(this->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 void Game::InitMatrices()
@@ -152,24 +155,29 @@ void Game::InitMatrices()
     ResourceManager::GetShader("terrain")->SetMatrix4("projection", this->ProjectionMatrix, true);
     ResourceManager::GetShader("terrain")->SetMatrix4("view", this->camera.GetViewMatrix());
     ResourceManager::GetShader("terrain")->SetMatrix4("model", glm::mat4(1.f));
+
+    glm::mat4 projectionText = glm::ortho(0.0f, static_cast<float>(Width), 0.0f, static_cast<float>(Height));
+    ResourceManager::GetShader("text")->SetMatrix4("projection", projectionText, true);
+    ResourceManager::GetShader("text")->SetFloat("textAlpha", 1.f);
 }
 
 void Game::InitShaders()
 {
     ResourceManager::LoadShader("shaders/sprite.vert", "shaders/sprite.frag", nullptr, "sprite");
     ResourceManager::LoadShader("shaders/terrain.vert", "shaders/terrain.frag", nullptr, "terrain");
+    ResourceManager::LoadShader("shaders/text.vert", "shaders/text.frag", nullptr, "text");
 }
 
 void Game::InitTextures()
 {
-    ResourceManager::LoadTexture("textures/avatar.jpg", false, "avatar");
-    ResourceManager::LoadTexture("textures/avatar_specular.jpg", false, "avatar_specular");
-    ResourceManager::LoadTexture("textures/container2.png", true, "container");
-    ResourceManager::LoadTexture("textures/container2_specular.png", true, "container_specular");
-    ResourceManager::LoadTexture("textures/awesomeface.png", true, "face");
-    ResourceManager::LoadTexture("textures/awesomeface_specular.png", true, "face_specular");
-    ResourceManager::LoadTexture("textures/forest_texture.png", true, "forest");
-    ResourceManager::LoadTexture("textures/grass.png", true, "grass");
+    //ResourceManager::LoadTexture("textures/avatar.jpg", false, "avatar");
+    //ResourceManager::LoadTexture("textures/avatar_specular.jpg", false, "avatar_specular");
+    //ResourceManager::LoadTexture("textures/container2.png", true, "container");
+    //ResourceManager::LoadTexture("textures/container2_specular.png", true, "container_specular");
+    //ResourceManager::LoadTexture("textures/awesomeface.png", true, "face");
+    //ResourceManager::LoadTexture("textures/awesomeface_specular.png", true, "face_specular");
+    //ResourceManager::LoadTexture("textures/forest_texture.png", true, "forest");
+    //ResourceManager::LoadTexture("textures/grass.png", true, "grass");
     ResourceManager::LoadTexture("./textures/Rolling_Hills_Bitmap_1025.png", false, "terrain");
     ResourceManager::LoadTexture("textures/tiny_treats_texture_1.png", true, "house");
     ResourceManager::LoadTexture("textures/grunge-wall-texture.jpg", false, "stone");
@@ -260,6 +268,11 @@ void Game::InitCameras()
 {
     float terrainY = this->terrain->GetHeightAt(8.f, 8.f);
     this->camera.CameraChanged(glm::vec3(8.f, 3.f + terrainY, 8.f), glm::vec3(1.f, -0.5f, -1.f));
+}
+
+void Game::InitTextRenderer(Characters& textCharacters)
+{
+    RenderText = new TextRenderer(*ResourceManager::GetShader("text"), textCharacters);
 }
 
 void Game::Init()
@@ -412,4 +425,6 @@ void Game::Render()
     ResourceManager::GetTexture("terrain")->Bind();
     ResourceManager::GetShader("terrain")->SetInteger("terrainTexture", 0);
     this->terrain->Render();
+
+    RenderText->RenderText(NameOutput, 25.0f, 45.0f, 0.6f, glm::vec3(0.0f, 0.0f, 0.0f));
 }
