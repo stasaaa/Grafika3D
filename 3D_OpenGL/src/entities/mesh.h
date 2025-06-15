@@ -46,6 +46,7 @@ public:
 	void Render(Shader* shader, const glm::vec3& origin);
 	void Move(const glm::vec3 position);
 	void Rotate(const glm::vec3 rotation);
+	void SetRotation(const glm::vec3 rotation);
 	void ScaleChange(const glm::vec3 scale);
 	Vertex* GetVertices() const;
 	unsigned GetVertexCount() const;

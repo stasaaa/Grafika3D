@@ -8,6 +8,9 @@
 #include <SOIL2/SOIL2.h>
 #include <stb/stb_image.h>
 
+#include "../entities/model.h"
+#include "../core/OBJLoader.h"
+
 template<typename T>
 T clamp(T val, T minVal, T maxVal) {
     if (val < minVal) return minVal;
@@ -18,14 +21,18 @@ T clamp(T val, T minVal, T maxVal) {
 class Terrain {
 public:
     Terrain() {}
-    Terrain(const std::string& heightmapPath,float yOffet = 0.f, 
+    Terrain(const std::string& path);
+    Terrain(const std::string& heightmapPath,float yOffet, 
         float yScale = 64.0f / 256.0f, float yShift = 16.0f, int resolution = 1);
     ~Terrain();
+    float GetHeightAtOBJ(float x, float z) const;
     float GetHeightAt(float x, float z) const;
     void Render();
 
 private:
+    void LoadOBJFile(const std::string& path);
     void LoadHeightmap(const std::string& path);
+    void SetupMeshOBJ();
     void SetupMesh();
 
     std::vector<float> vertices;
@@ -43,4 +50,4 @@ private:
     int resolution;
 };
 
-#endif
+#endif // !TERRAIN_H

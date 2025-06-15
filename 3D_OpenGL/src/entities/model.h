@@ -27,7 +27,9 @@ public:
 	~Model();
 
 	void Rotate(glm::vec3 rotation);
+	void SetRotation(glm::vec3 rotation);
 	void UpdatePosition(glm::vec3 position);
+	void UpdateScale(glm::vec3 scale);
 	float CalculateToBottom();
 	void Update();
 	void Render(Shader* shader);

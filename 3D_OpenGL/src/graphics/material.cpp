@@ -8,6 +8,6 @@ void Material::SendToShader(Shader& shader) {
 	shader.SetVector3f("material.ambient", this->ambient);
 	shader.SetVector3f("material.diffuse", this->diffuse);
 	shader.SetVector3f("material.specular", this->specular);
-	shader.SetInteger("material.diffuseTex", this->diffuseTex);
-	shader.SetInteger("material.specularTex", this->specularTex);
+	shader.SetInteger("material.diffuseTex", 0);
+	shader.SetInteger("material.specularTex", 0);
 }

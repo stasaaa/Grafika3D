@@ -53,6 +53,8 @@ public:
     bool firstMouse;
 
     Camera camera;
+    std::vector<Camera> cameras;
+    float active_camera = 0;
     Terrain* terrain;
 
     std::vector<Model*> Models;
@@ -81,6 +83,7 @@ public:
     void InitMeshes();
     void InitModels();
     void InitLights();
+    void InitCameras();
 
     // initialize game state (load all shaders/textures/levels)
     void Init();

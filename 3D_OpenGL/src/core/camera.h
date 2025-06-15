@@ -48,6 +48,7 @@ public:
 	void UpdateInput(const float& dt, const int direction, const double& offsetX, const double& offsetY);
 	void Move(const float& dt, const int direction, float terrainY);
 	void UpdateMouseInput(const float& dt, const double& offsetX, const double& offsetY);
+	void CameraChanged(glm::vec3 position, glm::vec3 direction);
 };
 
 #endif // !CAMERA_H

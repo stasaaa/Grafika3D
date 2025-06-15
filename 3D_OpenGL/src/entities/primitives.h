@@ -48,4 +48,10 @@ public:
 	Pyramid();
 };
 
+class Cube : public Primitive
+{
+public:
+	Cube();
+};
+
 #endif // !PRIMITIVES_H

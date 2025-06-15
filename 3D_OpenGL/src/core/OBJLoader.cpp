@@ -19,6 +19,8 @@ std::vector<Vertex> LoadOBJ(const char* file_name) {
 	glm::vec2 temp_vec2;
 	GLint temp_glint = 0;
 
+	bool hasNormal = false;
+
 	if (!in_file.is_open())
 	{
 		throw "ERROR::OBJLOADER::File nije mogao da se otvori";
@@ -47,6 +49,7 @@ std::vector<Vertex> LoadOBJ(const char* file_name) {
 			vs_positions.push_back(temp_vec3);
 		}
 		else if (prefix == "vn") {
+			hasNormal = true;
 			ss >> temp_vec3.x >> temp_vec3.y >> temp_vec3.z;
 			vs_normals.push_back(temp_vec3);
 		}
@@ -80,7 +83,9 @@ std::vector<Vertex> LoadOBJ(const char* file_name) {
 					ss.ignore(1, ' ');
 				}
 
-				if (counter > 2) {
+				if (!hasNormal && counter == 2) {
+					counter = 0;
+				} else if (counter > 2 ) {
 					counter = 0;
 				}
 			}
@@ -96,9 +101,12 @@ std::vector<Vertex> LoadOBJ(const char* file_name) {
 				vs_texcoord_indices.push_back(temp_tex_indices[i]);
 				vs_texcoord_indices.push_back(temp_tex_indices[i + 1]);
 
-				vs_normal_indices.push_back(temp_norm_indices[0]);
-				vs_normal_indices.push_back(temp_norm_indices[i]);
-				vs_normal_indices.push_back(temp_norm_indices[i + 1]);
+				if (temp_norm_indices.size() > 0)
+				{
+					vs_normal_indices.push_back(temp_norm_indices[0]);
+					vs_normal_indices.push_back(temp_norm_indices[i]);
+					vs_normal_indices.push_back(temp_norm_indices[i + 1]);
+				}
 			}
 		}
 		else {
@@ -112,7 +120,10 @@ std::vector<Vertex> LoadOBJ(const char* file_name) {
 	{
 		vertices[i].position = vs_positions[vs_position_indices[i] - 1];
 		vertices[i].texcoord = vs_texcoords[vs_texcoord_indices[i] - 1];
-		vertices[i].normal = vs_normals[vs_normal_indices[i] - 1];
+		if (hasNormal)
+		{
+			vertices[i].normal = vs_normals[vs_normal_indices[i] - 1];
+		}
 		vertices[i].color = glm::vec3(1.f);
 	}
 

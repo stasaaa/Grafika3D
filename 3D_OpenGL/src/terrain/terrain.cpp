@@ -10,11 +10,44 @@ Terrain::Terrain(const std::string& heightmapPath, float yOffset,
     SetupMesh();
 }
 
+Terrain::Terrain(const std::string& path)
+{
+    this->LoadOBJFile(path);
+    this->SetupMeshOBJ();
+}
+
 Terrain::~Terrain() {
     if (heightData) SOIL_free_image_data(heightData);
     glDeleteVertexArrays(1, &this->VAO);
     glDeleteBuffers(1, &this->VBO);
     glDeleteBuffers(1, &this->EBO);
+}
+
+void Terrain::LoadOBJFile(const std::string& path)
+{
+    std::vector<Vertex> objVertices = LoadOBJ(path.c_str());
+    this->vertices.clear(); // clear previous vertex data
+    this->indices.clear();
+
+    this->heightValues.resize(objVertices.size());
+    for (size_t i = 0; i < objVertices.size(); ++i)
+    {
+        const Vertex& v = objVertices[i];
+
+        // store height value y
+        this->heightValues[i] = v.position.y;
+
+        // store vertex attributes
+        this->vertices.push_back(v.position.x);
+        this->vertices.push_back(v.position.y);
+        this->vertices.push_back(v.position.z);
+
+        this->vertices.push_back(v.texcoord.x);
+        this->vertices.push_back(v.texcoord.y);
+    }
+
+    // Now set up OpenGL buffers
+    this->SetupMesh();
 }
 
 void Terrain::LoadHeightmap(const std::string& path) {
@@ -24,7 +57,7 @@ void Terrain::LoadHeightmap(const std::string& path) {
 
     this->heightValues.resize(width * height);
 
-    this->horizontalScale = 0.15f;
+    this->horizontalScale = 0.2f;
     this->yScale = 64.0f / 256.0f;
     for (unsigned int i = 0; i < this->height; i++)
     {
@@ -53,6 +86,28 @@ void Terrain::LoadHeightmap(const std::string& path) {
     }
 
     stbi_image_free(data);
+}
+
+void Terrain::SetupMeshOBJ()
+{
+    this->indices.clear();
+
+    glGenVertexArrays(1, &this->VAO);
+    glBindVertexArray(this->VAO);
+
+    glGenBuffers(1, &this->VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, this->VBO);
+    glBufferData(GL_ARRAY_BUFFER,
+        this->vertices.size() * sizeof(float),       // size of vertices buffer
+        &this->vertices[0],                          // pointer to first element
+        GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    // texture coords attribute (location = 1)
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
 }
 
 void Terrain::SetupMesh() {
@@ -96,6 +151,13 @@ void Terrain::SetupMesh() {
 void Terrain::Render() {
     // draw mesh
     glBindVertexArray(this->VAO);
+
+    if (this->indices.size() == 0)
+    {
+        glDrawArrays(GL_TRIANGLES, 0, this->vertices.size() / 5.f);
+        return;
+    }
+
     // render the mesh triangle strip by triangle strip - each row at a time
     for (unsigned int strip = 0; strip < this->NUM_STRIPS; ++strip)
     {
@@ -110,6 +172,12 @@ void Terrain::Render() {
 
 float Terrain::GetHeightAt(float x, float z) const
 {
+    if (this->indices.size() == 0)
+    {
+        float ret = this->GetHeightAtOBJ(x, z);
+        return ret;
+    }
+
     // Convert world x,z to heightmap indices i,j
     float i_f = (x / this->horizontalScale) + this->height / 2.0f;
     float j_f = (z / this->horizontalScale) + this->width / 2.0f;
@@ -137,4 +205,34 @@ float Terrain::GetHeightAt(float x, float z) const
     float h1 = h01 * (1 - s) + h11 * s;
 
     return (h0 * (1 - t) + h1 * t);
+}
+
+float Terrain::GetHeightAtOBJ(float x, float z) const
+{
+    if (heightValues.empty() || vertices.empty())
+        return 0.0f;
+
+    float minDistSquared = std::numeric_limits<float>::max();
+    float height = 0.0f;
+
+    // vertices stored as x,y,z,u,v flat array: stride 5
+    const size_t stride = 5;
+
+    for (size_t i = 0; i < heightValues.size(); ++i)
+    {
+        float vx = this->vertices[i * stride + 0];
+        float vz = this->vertices[i * stride + 2];
+
+        float dx = x - vx;
+        float dz = z - vz;
+        float distSquared = dx * dx + dz * dz;
+
+        if (distSquared < minDistSquared)
+        {
+            minDistSquared = distSquared;
+            height = this->heightValues[i];
+        }
+    }
+
+    return height;
 }

@@ -46,6 +46,14 @@ void Model::Rotate(glm::vec3 rotation)
 	}
 }
 
+void Model::SetRotation(glm::vec3 rotation)
+{
+	for (auto& i : this->meshes)
+	{
+		i->SetRotation(rotation);
+	}
+}
+
 float Model::CalculateToBottom()
 {
 	float minY = FLT_MAX;
@@ -64,8 +72,7 @@ float Model::CalculateToBottom()
 		}
 	}
 
-	float modelY = this->position.y;
-	return modelY - minY;
+	return minY;
 }
 
 void Model::Update()
@@ -90,5 +97,12 @@ void Model::Render(Shader* shader)
 void Model::UpdatePosition (glm::vec3 position)
 {
 	this->position = position;
+}
 
+void Model::UpdateScale(glm::vec3 scale)
+{
+	for (auto& i : this->meshes)
+	{
+		i->ScaleChange(scale);
+	}
 }

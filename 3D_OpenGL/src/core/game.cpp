@@ -1,6 +1,17 @@
 ﻿#include "game.h"
 
-float pom = 0.f;
+enum MODELS
+{
+    TREE = 0,
+    SUN,
+    MOON,
+    HOUSE,
+    STATUE
+};
+
+std::vector<glm::vec3> rotations = { {glm::vec3(0.f)} ,
+    {glm::vec3(0.f)} ,{glm::vec3(0.f)} ,{glm::vec3(0.f)}};
+std::vector<float> rotation_speed = { 2.3f, -10.f, -17.f, 5.f};
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -14,7 +25,7 @@ Game::Game(const char* title,
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height),
     GL_VER_MAJOR(GLVerMajor), GL_VER_MINOR(GLVerMinor),
     fbWidth(width), fbHeight(height), window(nullptr),
-    camera(glm::vec3(0.f, 2.f, 1.f), glm::vec3(0.f, 0.f, 1.f), glm::vec3(0.f, 1.f, 0.f))
+    camera(glm::vec3(8.f, 3.f, 8.f), glm::vec3(1.f, -0.5f, -1.f), glm::vec3(0.f, 1.f, 0.f))
 {
     this->InitGLFW();
     this->InitWindow(title, resizable);
@@ -26,12 +37,13 @@ Game::Game(const char* title,
     this->InitMaterials();
     this->InitMeshes();
 
-    this->terrain = new Terrain("./textures/Rolling_Hills_Height_Map.png", 14);
+    this->terrain = new Terrain("./textures/Rolling_Hills_Height_Map.png", 14.f);
 
     this->InitMatrices();
     this->InitOBJModels();
     this->InitModels();
     this->InitLights();
+    this->InitCameras();
 
     this->dt = 0.f;
     this->curTime = 0.f;
@@ -116,7 +128,6 @@ void Game::InitOpenGLOptions()
     // BITNO !!!!
     // kada budem htela da stavim wireframe mode (outline) koristim
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);  GL_TRIANGLES
-    // nesto se desi sa teksturama p ane radi bas najbolje - proveri zasto
     glPolygonMode(GL_FRONT_AND_BACK, GL_TRIANGLES);
 
     glEnable(GL_BLEND);
@@ -160,28 +171,51 @@ void Game::InitTextures()
     ResourceManager::LoadTexture("textures/forest_texture.png", true, "forest");
     ResourceManager::LoadTexture("textures/grass.png", true, "grass");
     ResourceManager::LoadTexture("./textures/Rolling_Hills_Bitmap_1025.png", false, "terrain");
+    ResourceManager::LoadTexture("textures/tiny_treats_texture_1.png", true, "house");
+    ResourceManager::LoadTexture("textures/grunge-wall-texture.jpg", false, "stone");
 }
 
 void Game::InitMaterials()
 {
-    unsigned int texure_id = ResourceManager::GetTexture("forest")->ID;
+    unsigned int stoneID = ResourceManager::GetTexture("stone")->ID;
+    unsigned int houseID = ResourceManager::GetTexture("house")->ID;
     ResourceManager::LoadMaterial(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f), 
-        texure_id, texure_id, "material0");
+        stoneID, stoneID, "material0");
+    ResourceManager::LoadMaterial(glm::vec3(0.1f), glm::vec3(1.f), glm::vec3(1.f),
+        houseID, houseID, "material1");
 }
 
 void Game::InitMeshes()
 {
+    Pyramid pyramid = Pyramid();
+    Quad quad = Quad();
+    Cube cube = Cube();
+    ResourceManager::LoadMesh(&pyramid, glm::vec3(0.f, -2.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "pyramid");
+    ResourceManager::GetMesh("pyramid")->SetRotation(glm::vec3(180.f, 0.f, 0.f));
+    ResourceManager::LoadMesh(&quad, glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f), "quad");
+    ResourceManager::LoadMesh(&cube, glm::vec3(0.f, 1.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "cube");
+    ResourceManager::LoadMesh(&pyramid, glm::vec3(0.f, 3.f, 0.f), glm::vec3(0.f), glm::vec3(1.f), "pyramid2");
 }
 
 void Game::InitModels()
 {
+    std::vector<Mesh*> meshes;
+
+    meshes.push_back(ResourceManager::GetMesh("pyramid"));
+    meshes.push_back(ResourceManager::GetMesh("cube"));
+    meshes.push_back(ResourceManager::GetMesh("pyramid2"));
+
+    this->Models.push_back(new Model(glm::vec3(0.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("stone"),
+        ResourceManager::GetTexture("stone"),
+        meshes));
+    this->UpdateModelPosition(this->Models[4], glm::vec3(2.f, 0.f, 0.f));
+
     for (auto& pair : ResourceManager::Meshes) {
         delete pair.second;  // Extracting Mesh* from map
     }
     ResourceManager::Meshes.clear();
-
-    //Pyramid test = Pyramid();
-    //ResourceManager::LoadMesh(&test, glm::vec3(0.f), glm::vec3(0.f), glm::vec3(1.f), "test");
 }
 
 void Game::InitOBJModels()
@@ -191,17 +225,46 @@ void Game::InitOBJModels()
         ResourceManager::GetTexture("forest"),
         ResourceManager::GetTexture("forest"),
         "assets/obj_files/Tree_4_C_Color1.obj"));
-    this->UpdateModelPosition(this->Models[0], glm::vec3(10.f, 0.f, 0.f));
+
+    this->Models.push_back(new Model(glm::vec3(50.f, 50.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("forest"),
+        ResourceManager::GetTexture("forest"),
+        "assets/obj_files/Sun_483.obj"));
+
+    this->Models.push_back(new Model(glm::vec3(-50.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material0"),
+        ResourceManager::GetTexture("forest"),
+        ResourceManager::GetTexture("forest"),
+        "assets/obj_files/Moon.obj"));
+
+    this->Models.push_back(new Model(glm::vec3(-50.f, 0.f, 0.f),
+        ResourceManager::GetMaterial("material1"),
+        ResourceManager::GetTexture("house"),
+        ResourceManager::GetTexture("house"),
+        "assets/obj_files/house.obj"));
+    this->Models[3]->UpdateScale(glm::vec3(1.5f));
+    this->Models[3]->Rotate(glm::vec3(0.f, 90.f, 0.f));
+
+    this->UpdateModelPosition(this->Models[TREE], glm::vec3(10.f, 0.f, 0.f));
+    this->UpdateModelPosition(this->Models[HOUSE], glm::vec3(-30.f, 0.f, 0.f));
 }
 
 void Game::InitLights()
 {
-    ResourceManager::GetShader("sprite")->SetVector3f("lightPos0", glm::vec3(0.f, 0.f, 2.f));
-    ResourceManager::LoadLight(glm::vec3(0.f, 0.f, 2.f), "main_light");
+    ResourceManager::GetShader("sprite")->SetVector3f("lightPos0", glm::vec3(0.f, 1000.f, 0.f));
+    ResourceManager::LoadLight(glm::vec3(0.f, 100.f, 0.f), "main_light");
+}
+
+void Game::InitCameras()
+{
+    float terrainY = this->terrain->GetHeightAt(8.f, 8.f);
+    this->camera.CameraChanged(glm::vec3(8.f, 3.f + terrainY, 8.f), glm::vec3(1.f, -0.5f, -1.f));
 }
 
 void Game::Init()
 {
+    this->camera.Move(this->dt, FORWARD, this->terrain->GetHeightAt(0.f, 0.f));
 }
 
 void Game::UpdateUniforms()
@@ -230,12 +293,16 @@ void Game::UpdateUniforms()
 
 void Game::Update()
 {
+    for (unsigned int i = 0; i < 4; i++) {
+        rotations[i] += glm::vec3(0.f, rotation_speed[i] * this->dt, 0.f);
+    }
+
     //ResourceManager::GetMesh("test")->Rotate(glm::vec3(0.f, 100.f * this->dt, 0.f));
     this->Models[0]->Rotate(glm::vec3(0.f, 100.f * this->dt, 0.f));
 
     this->UpdateUniforms();
 
-    this->camera.UpdateInput(this->dt, -1, this->mouseOffsetX, this->mouseOffsetY);
+    //this->camera.UpdateInput(this->dt, -1, this->mouseOffsetX, this->mouseOffsetY);
 }
 
 void Game::UpdateModelPosition(Model* model, glm::vec3 position)
@@ -279,21 +346,37 @@ void Game::ProcessInput()
         this->MouseButtons[GLFW_MOUSE_BUTTON_RIGHT] = false;
     }
 
-    if (this->Keys[GLFW_KEY_A]) {
-        float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
-        this->camera.Move(this->dt, LEFT, terrainY);
+    //if (this->Keys[GLFW_KEY_A]) {
+    //    float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
+    //    this->camera.Move(this->dt, LEFT, terrainY);
+    //}
+    //if (this->Keys[GLFW_KEY_D]) {
+    //    float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
+    //    this->camera.Move(this->dt, RIGHT, terrainY);
+    //}
+    //if (this->Keys[GLFW_KEY_W]) {
+    //    float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
+    //    this->camera.Move(this->dt, FORWARD, terrainY);
+    //}
+    //if (this->Keys[GLFW_KEY_S]) {
+    //    float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
+    //    this->camera.Move(this->dt, BACK, terrainY);
+    //}
+    if (this->Keys[GLFW_KEY_1]) {
+        float terrainY = this->terrain->GetHeightAt(8.f, 8.f);
+        this->camera.CameraChanged(glm::vec3(8.f, 3.f + terrainY, 8.f), glm::vec3(1.f, -0.5f, -1.f));
     }
-    if (this->Keys[GLFW_KEY_D]) {
-        float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
-        this->camera.Move(this->dt, RIGHT, terrainY);
+    if (this->Keys[GLFW_KEY_2]) {
+        float terrainY = this->terrain->GetHeightAt(8.f, -8.f);
+        this->camera.CameraChanged(glm::vec3(8.f, 3.f + terrainY, -8.f), glm::vec3(-1.f, -0.5f, -1.f));
     }
-    if (this->Keys[GLFW_KEY_W]) {
-        float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
-        this->camera.Move(this->dt, FORWARD, terrainY);
+    if (this->Keys[GLFW_KEY_3]) {
+        float terrainY = this->terrain->GetHeightAt(-8.f, -8.f);
+        this->camera.CameraChanged(glm::vec3(-8.f, 3.f + terrainY, -8.f), glm::vec3(-1.f, -0.5f, 1.f));
     }
-    if (this->Keys[GLFW_KEY_S]) {
-        float terrainY = this->terrain->GetHeightAt(this->camera.GetPosition().x, this->camera.GetPosition().z);
-        this->camera.Move(this->dt, BACK, terrainY);
+    if (this->Keys[GLFW_KEY_4]) {
+        float terrainY = this->terrain->GetHeightAt(-8.f, -8.f);
+        this->camera.CameraChanged(glm::vec3(-8.f, 3.f + terrainY, 8.f), glm::vec3(1.f, -0.5f, 1.f));
     }
 
     this->UpdateMouseEvents();
@@ -301,10 +384,32 @@ void Game::ProcessInput()
 
 void Game::Render()
 {
-    this->Models[0]->Render(ResourceManager::GetShader("sprite"));
+    this->Models[HOUSE]->SetRotation(glm::vec3(0.f, 90.f, 0.f));
+    this->UpdateModelPosition(this->Models[HOUSE], glm::vec3(-30.f, 0.f, 0.f));
+    this->Models[HOUSE]->Render(ResourceManager::GetShader("sprite"));
+
+    this->Models[HOUSE]->SetRotation(glm::vec3(0.f, -110.f, 0.f));
+    this->UpdateModelPosition(this->Models[HOUSE], glm::vec3(30.f, 0.f, 50.f));
+    this->Models[HOUSE]->Render(ResourceManager::GetShader("sprite"));
+
+    this->Models[STATUE]->SetRotation(rotations[0]);
+    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(5.f, 0.f, 5.f));
+    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+
+    this->Models[STATUE]->SetRotation(rotations[1]);
+    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(-5.f, 0.f, 5.f));
+    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+
+    this->Models[STATUE]->SetRotation(rotations[2]);
+    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(-5.f, 0.f, -5.f));
+    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
+
+    this->Models[STATUE]->SetRotation(rotations[3]);
+    this->UpdateModelPosition(this->Models[STATUE], glm::vec3(5.f, 0.f, -5.f));
+    this->Models[STATUE]->Render(ResourceManager::GetShader("sprite"));
 
     ResourceManager::GetShader("terrain")->Use();
     ResourceManager::GetTexture("terrain")->Bind();
-    ResourceManager::GetShader("terrain")->SetInteger("terrainTexture", ResourceManager::GetTexture("terrain")->ID);
+    ResourceManager::GetShader("terrain")->SetInteger("terrainTexture", 0);
     this->terrain->Render();
 }
